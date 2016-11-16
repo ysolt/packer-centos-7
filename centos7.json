@@ -3,20 +3,11 @@
     {
       "type": "shell",
       "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
-      "script": "scripts/ansible.sh"
-    },
-    {
-      "type": "ansible-local",
-      "playbook_file": "ansible/main.yml",
-      "role_paths": [
-        "/etc/ansible/roles/geerlingguy.packer-rhel",
-        "/etc/ansible/roles/geerlingguy.nfs"
-      ]
-    },
-    {
-      "type": "shell",
-      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
-      "script": "scripts/cleanup.sh"
+      "scripts": [
+         "scripts/yum_update.sh",
+         "scripts/virtualbox.sh",
+         "scripts/cleanup.sh"
+       ]
     }
   ],
   "builders": [
@@ -26,7 +17,8 @@
         "<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks.cfg<enter><wait>"
       ],
       "boot_wait": "10s",
-      "disk_size": 81920,
+      "disk_size": 20920,
+      "hard_drive_interface": "sata",
       "guest_os_type": "RedHat_64",
       "headless": true,
       "http_directory": "http",
@@ -45,18 +37,13 @@
       "virtualbox_version_file": ".vbox_version",
       "vm_name": "packer-centos-7-x86_64",
       "vboxmanage": [
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--memory",
-          "512"
-        ],
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--cpus",
-          "2"
-        ]
+        [ "modifyvm", "{{.Name}}", "--memory", "1024" ],
+        [ "modifyvm", "{{.Name}}", "--cpus",  "2" ],
+        [ "modifyvm", "{{.Name}}", "--acpi", "on" ],
+        [ "modifyvm", "{{.Name}}", "--ioapic", "on" ],
+
+        [ "createhd", "--format", "VDI", "--filename", "disk2.vdi", "--size", "10240" ],
+        [ "storageattach", "{{.Name}}", "--storagectl", "SATA Controller", "--port", "1", "--type", "hdd", "--medium", "disk2.vdi" ]
       ]
     },
     {
