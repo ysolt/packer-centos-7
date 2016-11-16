@@ -6,6 +6,7 @@
       "scripts": [
          "scripts/yum_update.sh",
          "scripts/virtualbox.sh",
+         "scripts/prepare_data_volume.sh",
          "scripts/cleanup.sh"
        ]
     }
